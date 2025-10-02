@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Home - mtrl-search{% endblock %}
+{% block title %}Hem - mtrl-search{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-lg-8 mx-auto">
         <div class="text-center mb-5">
             <h1 class="display-4 mb-3">mtrl-search</h1>
-            <p class="lead">Search through {{ total_docs }} indexed PDF documents</p>
+            <p class="lead">Sök bland {{ total_docs }} indexerade PDF-dokument</p>
         </div>
 
         <div class="card shadow">
@@ -17,22 +17,22 @@
                         <input type="text" 
                                name="q" 
                                class="form-control" 
-                               placeholder="Search PDFs by title, author, or content..."
+                               placeholder="Sök PDF:er efter titel, författare eller innehåll..."
                                required
                                autofocus>
                         <button class="btn btn-primary" type="submit">
-                            🔍 Search
+                            🔍 Sök
                         </button>
                     </div>
                 </form>
                 <p class="text-muted text-center mb-0">
-                    <small>Tip: Search for keywords, author names, or document titles</small>
+                    <small>Tips: Sök efter nyckelord, författarnamn eller dokumenttitlar</small>
                 </p>
             </div>
         </div>
 
         <div class="mt-4 text-center">
-            <a href="/browse" class="btn btn-outline-primary">Browse All Documents</a>
+            <a href="/browse" class="btn btn-outline-primary">Bläddra bland alla dokument</a>
         </div>
     </div>
 </div>

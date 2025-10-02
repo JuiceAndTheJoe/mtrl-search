@@ -7,8 +7,8 @@
     <div class="col-lg-10 mx-auto">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><a href="/browse">Browse</a></li>
+                <li class="breadcrumb-item"><a href="/">Hem</a></li>
+                <li class="breadcrumb-item"><a href="/browse">Bläddra</a></li>
                 <li class="breadcrumb-item active">{{ doc.title or doc.filename }}</li>
             </ol>
         </nav>
@@ -19,27 +19,27 @@
             </div>
             <div class="card-body">
                 <dl class="row">
-                    <dt class="col-sm-3">Filename:</dt>
+                    <dt class="col-sm-3">Filnamn:</dt>
                     <dd class="col-sm-9">{{ doc.filename }}</dd>
 
                     {% if doc.author %}
-                    <dt class="col-sm-3">Author:</dt>
+                    <dt class="col-sm-3">Författare:</dt>
                     <dd class="col-sm-9">{{ doc.author }}</dd>
                     {% endif %}
 
-                    <dt class="col-sm-3">Pages:</dt>
+                    <dt class="col-sm-3">Sidor:</dt>
                     <dd class="col-sm-9">{{ doc.num_pages }}</dd>
 
-                    <dt class="col-sm-3">Indexed:</dt>
+                    <dt class="col-sm-3">Indexerad:</dt>
                     <dd class="col-sm-9">{{ doc.indexed_at.strftime('%Y-%m-%d %H:%M:%S') }}</dd>
 
-                    <dt class="col-sm-3">File Path:</dt>
+                    <dt class="col-sm-3">Filsökväg:</dt>
                     <dd class="col-sm-9"><code>{{ doc.file_path }}</code></dd>
                 </dl>
 
                 <hr>
 
-                <h5>Content Preview:</h5>
+                <h5>Förhandsgranskning av innehåll:</h5>
                 <div class="content-preview bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">
                     <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">{{ doc.content[:2000] }}{% if doc.content|length > 2000 %}...{% endif %}</pre>
                 </div>
@@ -47,8 +47,8 @@
         </div>
 
         <div class="mt-4">
-            <a href="/browse" class="btn btn-outline-secondary">← Back to Browse</a>
-            <a href="/" class="btn btn-outline-primary">🏠 Home</a>
+            <a href="/browse" class="btn btn-outline-secondary">← Tillbaka till bläddra</a>
+            <a href="/" class="btn btn-outline-primary">🏠 Hem</a>
         </div>
     </div>
 </div>

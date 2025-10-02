@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}Search Results - mtrl-search{% endblock %}
+{% block title %}Sökresultat - mtrl-search{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-lg-10 mx-auto">
-        <h2 class="mb-4">Search Results</h2>
+        <h2 class="mb-4">Sökresultat</h2>
         
         <form action="/search" method="get" class="mb-4">
             <div class="input-group">
                 <input type="text" 
                        name="q" 
                        class="form-control" 
-                       placeholder="Search PDFs..."
+                       placeholder="Sök PDF:er..."
                        value="{{ query }}"
                        required>
                 <button class="btn btn-primary" type="submit">
-                    🔍 Search
+                    🔍 Sök
                 </button>
             </div>
         </form>
 
         {% if query %}
             <p class="text-muted mb-3">
-                Found {{ results|length }} result(s) for "<strong>{{ query }}</strong>"
+                Hittade {{ results|length }} resultat för "<strong>{{ query }}</strong>"
             </p>
         {% endif %}
 
@@ -33,26 +33,26 @@
                 <a href="/document/{{ doc.id }}" class="list-group-item list-group-item-action">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">{{ doc.title or doc.filename }}</h5>
-                        <small class="text-muted">{{ doc.num_pages }} pages</small>
+                        <small class="text-muted">{{ doc.num_pages }} sidor</small>
                     </div>
                     {% if doc.author %}
-                    <p class="mb-1"><small><strong>Author:</strong> {{ doc.author }}</small></p>
+                    <p class="mb-1"><small><strong>Författare:</strong> {{ doc.author }}</small></p>
                     {% endif %}
                     <p class="mb-1 text-truncate">
                         <small>{{ doc.content[:200] }}...</small>
                     </p>
-                    <small class="text-muted">Indexed: {{ doc.indexed_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    <small class="text-muted">Indexerad: {{ doc.indexed_at.strftime('%Y-%m-%d %H:%M') }}</small>
                 </a>
                 {% endfor %}
             </div>
         {% else %}
             <div class="alert alert-info">
-                <p class="mb-0">No documents found matching your search criteria.</p>
+                <p class="mb-0">Inga dokument hittades som matchade dina sökkriterier.</p>
             </div>
         {% endif %}
 
         <div class="mt-4">
-            <a href="/" class="btn btn-outline-secondary">← Back to Home</a>
+            <a href="/" class="btn btn-outline-secondary">← Tillbaka till startsidan</a>
         </div>
     </div>
 </div>
