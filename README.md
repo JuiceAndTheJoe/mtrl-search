@@ -1,6 +1,6 @@
 # mtrl-search
 
-A Python-based PDF indexing and search system that extracts text from PDF files, stores structured data in a SQL database, and provides a Flask-powered web interface for searching and viewing documents.
+A Python-based material indexing and search system that extracts text from PDF files, stores structured data in a SQL database, and provides a Flask-powered web interface for searching and viewing documents.
 
 ## Features
 
