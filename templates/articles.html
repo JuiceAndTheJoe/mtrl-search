@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Artiklar - mtrl-search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <h2 class="mb-4">Extraherade artiklar</h2>
+        
+        <!-- Sökformulär för artiklar -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form action="/articles/search" method="get" class="mb-0">
+                    <div class="input-group">
+                        <input type="text" 
+                               name="q" 
+                               class="form-control" 
+                               placeholder="Sök artiklar efter FBET, FBEN eller namn..."
+                               required>
+                        <button class="btn btn-primary" type="submit">
+                            🔍 Sök artiklar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <p class="text-muted mb-3">
+            Totalt antal artiklar: <strong>{{ articles|length }}</strong>
+        </p>
+
+        {% if articles %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>FBET</th>
+                            <th>FBEN</th>
+                            <th>Artikel</th>
+                            <th>Länk</th>
+                            <th>Dokument</th>
+                            <th>Extraherad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in articles %}
+                        <tr>
+                            <td>
+                                {% if article.fbet %}
+                                    <code>{{ article.fbet }}</code>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if article.fben %}
+                                    <code>{{ article.fben }}</code>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if article.artikel %}
+                                    {{ article.artikel[:150] }}{% if article.artikel|length > 150 %}...{% endif %}
+                                {% else %}
+                                    <span class="text-muted">Ingen beskrivning</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if article.link %}
+                                    <a href="{{ article.link }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        🔗 Öppna
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/document/{{ article.document.id }}" class="text-decoration-none">
+                                    {{ article.document.title or article.document.filename }}
+                                </a>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ article.extracted_at.strftime('%Y-%m-%d %H:%M') }}
+                                </small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h5 class="alert-heading">Inga artiklar hittades</h5>
+                <p class="mb-0">
+                    Inga artiklar har extraherats än. Kör <code>extract_articles.py</code> för att extrahera 
+                    artikeldata från Tillverkardokumentation-kapitlen i dina PDF:er.
+                </p>
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="/" class="btn btn-outline-secondary">← Tillbaka till startsidan</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

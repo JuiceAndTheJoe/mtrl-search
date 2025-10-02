@@ -39,6 +39,61 @@
 
                 <hr>
 
+                {% if articles %}
+                <hr>
+                <h5>Extraherade artiklar ({{ articles|length }}):</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>FBET</th>
+                                <th>FBEN</th>
+                                <th>Artikel</th>
+                                <th>Länk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for article in articles[:20] %}
+                            <tr>
+                                <td>
+                                    {% if article.fbet and article.fbet != 'FBEN' %}
+                                        <code>{{ article.fbet }}</code>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if article.fben and article.fben != 'Artikel' %}
+                                        <code>{{ article.fben }}</code>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if article.artikel and not article.artikel.startswith('FBET FBEN') %}
+                                        {{ article.artikel[:100] }}{% if article.artikel|length > 100 %}...{% endif %}
+                                    {% else %}
+                                        <span class="text-muted">Ingen beskrivning</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if article.link %}
+                                        <a href="{{ article.link }}" target="_blank" class="btn btn-xs btn-outline-primary">🔗</a>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if articles|length > 20 %}
+                        <p class="text-muted"><small>Visar första 20 av {{ articles|length }} artiklar. <a href="/articles">Se alla artiklar</a></small></p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <hr>
                 <h5>Förhandsgranskning av innehåll:</h5>
                 <div class="content-preview bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">
                     <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">{{ doc.content[:2000] }}{% if doc.content|length > 2000 %}...{% endif %}</pre>
