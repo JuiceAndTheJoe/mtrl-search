@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Home - PDF Search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">PDF Search System</h1>
+            <p class="lead">Search through {{ total_docs }} indexed PDF documents</p>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <form action="/search" method="get" class="mb-3">
+                    <div class="input-group input-group-lg">
+                        <input type="text" 
+                               name="q" 
+                               class="form-control" 
+                               placeholder="Search PDFs by title, author, or content..."
+                               required
+                               autofocus>
+                        <button class="btn btn-primary" type="submit">
+                            🔍 Search
+                        </button>
+                    </div>
+                </form>
+                <p class="text-muted text-center mb-0">
+                    <small>Tip: Search for keywords, author names, or document titles</small>
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="/browse" class="btn btn-outline-primary">Browse All Documents</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

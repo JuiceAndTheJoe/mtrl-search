@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Documents - PDF Search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <h2 class="mb-4">All Documents</h2>
+        
+        <p class="text-muted mb-3">
+            Total documents: <strong>{{ documents|length }}</strong>
+        </p>
+
+        {% if documents %}
+            <div class="list-group">
+                {% for doc in documents %}
+                <a href="/document/{{ doc.id }}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ doc.title or doc.filename }}</h5>
+                        <small class="text-muted">{{ doc.num_pages }} pages</small>
+                    </div>
+                    {% if doc.author %}
+                    <p class="mb-1"><small><strong>Author:</strong> {{ doc.author }}</small></p>
+                    {% endif %}
+                    <small class="text-muted">Indexed: {{ doc.indexed_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <p class="mb-0">No documents have been indexed yet. Use the extraction script to add PDFs.</p>
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="/" class="btn btn-outline-secondary">← Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
