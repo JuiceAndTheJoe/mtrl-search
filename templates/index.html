@@ -7,21 +7,47 @@
     <div class="col-lg-8 mx-auto">
         <div class="text-center mb-5">
             <h1 class="display-4 mb-3">mtrl-search</h1>
-            <p class="lead">Sök bland {{ total_docs }} indexerade PDF-dokument</p>
+            <p class="lead">Sök bland {{ total_docs }} indexerade PDF-dokument och {{ total_articles }} artiklar</p>
         </div>
 
+        <!-- Artikelsökning -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">🔧 Artikelsökning</h5>
+            </div>
+            <div class="card-body p-4">
+                <form action="/articles/search" method="get" class="mb-3">
+                    <div class="input-group input-group-lg">
+                        <input type="text" 
+                               name="q" 
+                               class="form-control" 
+                               placeholder="Sök artiklar efter FBET, FBEN eller beskrivning... (t.ex. M1346-210110, TUBBAND, Petzl)"
+                               autofocus>
+                        <button class="btn btn-success" type="submit">
+                            🔍 Sök artiklar
+                        </button>
+                    </div>
+                </form>
+                <p class="text-muted text-center mb-0">
+                    <small>Tips: Sök med FBET-kod (t.ex. M1346-210110), FBEN-typ (t.ex. TUBBAND) eller produktnamn (t.ex. Petzl)</small>
+                </p>
+            </div>
+        </div>
+
+        <!-- Dokumentsökning -->
         <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📄 Dokumentsökning</h5>
+            </div>
             <div class="card-body p-4">
                 <form action="/search" method="get" class="mb-3">
                     <div class="input-group input-group-lg">
                         <input type="text" 
                                name="q" 
                                class="form-control" 
-                               placeholder="Sök PDF:er efter titel, författare eller innehåll..."
-                               required
-                               autofocus>
+                               placeholder="Sök PDF:er efter titel, författare eller innehåll...">
                         <button class="btn btn-primary" type="submit">
-                            🔍 Sök
+                            🔍 Sök dokument
                         </button>
                     </div>
                 </form>
@@ -32,7 +58,8 @@
         </div>
 
         <div class="mt-4 text-center">
-            <a href="/browse" class="btn btn-outline-primary">Bläddra bland alla dokument</a>
+            <a href="/articles" class="btn btn-outline-success me-2">Bläddra bland artiklar</a>
+            <a href="/browse" class="btn btn-outline-primary">Bläddra bland dokument</a>
         </div>
     </div>
 </div>

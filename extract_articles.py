@@ -43,17 +43,21 @@ def find_chapter_9_pages(pdf_path):
                     has_chapter = any(indicator in text_upper for indicator in chapter_indicators)
                     has_articles = any(indicator in text_upper for indicator in article_indicators)
                     
-                    # Räkna antal potentiella artikelrader (rader med FBET/FBEN-mönster)
-                    fbet_matches = len(re.findall(r'[FG]\d{4}-\d{6}', text))
+                    # Räkna antal potentiella artikelrader (rader med FBET/FBEN-mönster) - inkludera M-prefix
+                    fbet_matches = len(re.findall(r'[FGM]\d{4}-\d{6}', text))
                     
-                    if has_chapter or (has_articles and fbet_matches > 2):
+                    if has_chapter or (has_articles and fbet_matches > 0):
                         pages_with_articles.append(page_num)
                         print(f"✅ Hittade artikeldata på sida {page_num + 1} ({fbet_matches} FBET-koder)")
                         
                         # Visa lite kontext
                         if fbet_matches > 0:
-                            sample_codes = re.findall(r'[FG]\d{4}-\d{6}', text)[:3]
+                            sample_codes = re.findall(r'[FGM]\d{4}-\d{6}', text)[:3]
                             print(f"   Exempel på koder: {', '.join(sample_codes)}")
+                    else:
+                        # Debug: visa sidor efter 135 som inte matchade
+                        if page_num > 135:
+                            print(f"❌ Sida {page_num + 1}: {fbet_matches} FBET-koder, has_articles={has_articles}")
                             
             except Exception as e:
                 print(f"Fel vid analys av sida {page_num + 1}: {e}")
@@ -268,10 +272,11 @@ def extract_all_articles(pdf_path, document_id):
                 print(f"   Hittade {len(page_articles)} artiklar")
                 all_articles.extend(page_articles)
                 
-                # Visa exempel
-                for i, article in enumerate(page_articles[:3]):  # Visa första 3
+                # Visa alla artiklar på denna sida för debugging
+                for i, article in enumerate(page_articles):
                     print(f"   {i+1}: FBET={article.get('fbet', 'N/A')}, FBEN={article.get('fben', 'N/A')}")
-                    print(f"      Artikel: {article.get('artikel', 'N/A')[:100]}...")
+                    if len(page_articles) <= 10:  # Om få artiklar, visa mer detalj
+                        print(f"      Artikel: {article.get('artikel', 'N/A')[:100]}...")
             else:
                 print(f"   Inga artiklar hittades på denna sida")
     

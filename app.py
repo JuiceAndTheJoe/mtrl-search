@@ -16,8 +16,9 @@ def index():
     """Home page with search form."""
     session = get_session()
     total_docs = session.query(PDFDocument).count()
+    total_articles = session.query(Article).count()
     session.close()
-    return render_template('index.html', total_docs=total_docs)
+    return render_template('index.html', total_docs=total_docs, total_articles=total_articles)
 
 @app.route('/search')
 def search():
@@ -72,7 +73,8 @@ def browse():
 def articles():
     """Browse all extracted articles."""
     session = get_session()
-    articles = session.query(Article).join(PDFDocument).order_by(Article.extracted_at.desc()).all()
+    from sqlalchemy.orm import joinedload
+    articles = session.query(Article).options(joinedload(Article.document)).order_by(Article.extracted_at.desc()).all()
     session.close()
     
     return render_template('articles.html', articles=articles)
@@ -94,7 +96,9 @@ def search_articles():
         Article.artikel.ilike(f'%{query}%')
     )
     
-    results = session.query(Article).join(PDFDocument).filter(search_filter).all()
+    # Eagerly load the document relationship to avoid DetachedInstanceError
+    from sqlalchemy.orm import joinedload
+    results = session.query(Article).options(joinedload(Article.document)).filter(search_filter).all()
     session.close()
     
     return render_template('article_search_results.html', results=results, query=query)
