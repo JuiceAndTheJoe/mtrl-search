@@ -173,75 +173,72 @@ def extract_articles_from_text(text):
             if not line:
                 continue
                 
-            # Leta efter specifika mönster för FBET och FBEN
-            # FBET: F/G/M följt av 4 siffror, bindestreck och 6 siffror
-            fbet_pattern = r'\b([FGM]\d{4}-\d{6})\b'
+            # Leta efter FBET-kod i början av raden
+            fbet_match = re.search(r'^([FGM]\d{4}-\d{6})', line)
             
-            # FBEN: Försök att hitta mönster för svenska produktnamn
-            # Titta efter vanliga FBEN-ord som följer efter FBET-koden
-            fben_patterns = [
-                r'\b(STANDARDBULT|MINIBULT|KAMSÄKRING|ISSKRUV|BORRKRONA|GUMMFIXERING|EXPANDERBULT|LIMBULT|VAJERKIL|SNABBLÄNK|KLÄTTERSELE|SÄKERHETSSELE|KARBINHAKE|FALLDÄMPARE|SMÖRJFETT|KROK|FIXERING|REPBROMS|REP)\b',
-                r'\b([A-ZÅÄÖ]{5,20})\b'  # Backup pattern för andra ord
-            ]
-            
-            fbet_match = re.search(fbet_pattern, line, re.IGNORECASE)
-            fben_match = None
-            
-            # Prova alla FBEN-mönster
-            for pattern in fben_patterns:
-                fben_match = re.search(pattern, line, re.IGNORECASE)
-                if fben_match:
-                    break
-            
-            # Prioritera rader med FBET-koder, de är mest tillförlitliga
             if fbet_match:
-                print(f"  Rad {line_num}: {line}")
+                fbet = fbet_match.group(1)
                 
-                fbet = fbet_match.group(1).strip()
-                fben = fben_match.group(1).strip() if fben_match else None
+                # Ta bort FBET-koden från raden för att hitta resten
+                remaining_text = line[len(fbet):].strip()
                 
-                # Leta efter URL/länk i samma rad
+                # Förbättrad FBEN-extraktion - samla alla stora bokstäver/ord i följd
+                words = remaining_text.split()
+                fben_words = []
+                artikel_words = []
+                in_fben = True  # Vi börjar i FBEN-sektionen
+                
+                for word in words:
+                    # Rensa bort specialtecken för analys men behåll originalet
+                    word_clean = re.sub(r'[^\w\såäöüÅÄÖÜ\-\./]', '', word)
+                    
+                    if in_fben and word_clean:
+                        # Kolla om ordet tillhör FBEN (stora bokstäver, mått, förkortningar)
+                        if (word_clean.isupper() or 
+                            re.match(r'^[A-ZÅÄÖÜ0-9\-\./,]+$', word_clean) or
+                            word_clean in ['PPE', 'STD', 'SV', 'AL', 'ST', 'DL', 'TL', 'TLS', 'SLS', 'CM', 'MM', 'M', 'L', 'KG', 'DB', 'NR']):
+                            fben_words.append(word)
+                        else:
+                            # När vi hittar mixed case eller lowercase, börja artikeldelen
+                            in_fben = False
+                            artikel_words.append(word)
+                    else:
+                        # Vi är redan i artikeldelen
+                        artikel_words.append(word)
+                
+                # Sätt ihop FBEN och artikel
+                fben = ' '.join(fben_words).strip() if fben_words else None
+                artikel = ' '.join(artikel_words).strip() if artikel_words else None
+                
+                # Rensa artikel-texten
+                if artikel:
+                    # Ta bort "Bruksanvisning" från slutet
+                    artikel = re.sub(r'\s*Bruksanvisning\s*$', '', artikel, flags=re.IGNORECASE)
+                    artikel = artikel.strip()
+                    
+                    # Om artikel-texten bara består av siffror och mått, sätt den till None
+                    if not artikel or re.match(r'^[\d\s\-\./,]+$', artikel):
+                        artikel = None
+                
+                # Validera FBEN - det ska vara rimligt som produkttyp
+                if fben and (len(fben) > 30 or not re.search(r'[A-ZÅÄÖÜ]', fben)):
+                    fben = None
+                
+                # Leta efter länkar (URL:er)
                 link_match = re.search(r'(https?://[^\s]+)', line)
                 link = link_match.group(1) if link_match else None
                 
-                # Extrahera och rensa artikelbeskrivning
-                artikel = line
-                
-                # Ta bort FBET-kod från beskrivningen
-                if fbet:
-                    artikel = artikel.replace(fbet, '').strip()
-                
-                # Ta bort FBEN-kod från beskrivningen 
-                if fben:
-                    artikel = artikel.replace(fben, '').strip()
-                
-                # Ta bort länk från beskrivningen
-                if link:
-                    artikel = artikel.replace(link, '').strip()
-                
-                # Ta bort extra mellanslag och tomma delar
-                artikel = re.sub(r'\s+', ' ', artikel).strip()
-                
-                # Hoppa över för korta beskrivningar eller headers
-                if not artikel or len(artikel) < 5 or artikel.upper() in ['FBET FBEN ARTIKEL LÄNK', 'FBET', 'FBEN', 'ARTIKEL', 'LÄNK']:
-                    artikel = None
-                
-                # För M-prefix koder, behandla dem som FBET om de är längre än 10 tecken
-                if not fbet and re.match(r'M\d{4}-\d{6}', line):
-                    m_match = re.search(r'(M\d{4}-\d{6})', line)
-                    if m_match:
-                        fbet = m_match.group(1)
-                        artikel = artikel.replace(fbet, '').strip() if artikel else artikel
-                
-                print(f"    FBET: '{fbet}', FBEN: '{fben}', Artikel: '{artikel}', Länk: '{link}'")
-                
-                if any([fbet, fben, artikel, link]):
+                # Skapa artikel om vi har FBET och minst FBEN
+                if fbet and fben:
                     articles.append({
                         'fbet': fbet,
                         'fben': fben,
                         'artikel': artikel,
                         'link': link
                     })
+                    
+                    print(f"  Rad {line_num}: {line}")
+                    print(f"    FBET: '{fbet}', FBEN: '{fben}', Artikel: '{artikel}', Länk: '{link}'")
     
     except Exception as e:
         print(f"Fel vid textbaserad extraktion: {e}")
@@ -274,9 +271,11 @@ def extract_all_articles(pdf_path, document_id):
                 
                 # Visa alla artiklar på denna sida för debugging
                 for i, article in enumerate(page_articles):
-                    print(f"   {i+1}: FBET={article.get('fbet', 'N/A')}, FBEN={article.get('fben', 'N/A')}")
-                    if len(page_articles) <= 10:  # Om få artiklar, visa mer detalj
-                        print(f"      Artikel: {article.get('artikel', 'N/A')[:100]}...")
+                    if article:  # Kontrollera att article inte är None
+                        print(f"   {i+1}: FBET={article.get('fbet', 'N/A')}, FBEN={article.get('fben', 'N/A')}")
+                        if len(page_articles) <= 10:  # Om få artiklar, visa mer detalj
+                            artikel_val = article.get('artikel', 'N/A') or 'N/A'
+                            print(f"      Artikel: {str(artikel_val)[:100]}...")
             else:
                 print(f"   Inga artiklar hittades på denna sida")
     
