@@ -1,14 +1,15 @@
 # mtrl-search
 
-A Python-based material indexing and search system that extracts text from PDF files, stores structured data in a SQL database, and provides a Flask-powered web interface for searching and viewing documents.
+A Python-based material indexing and search system that extracts text and structured article data from PDF files, stores information in a SQL database, and provides a Flask-powered web interface for searching and viewing documents and articles.
 
 ## Features
 
 - **PDF Text Extraction**: Automatically extracts text and metadata from PDF files
-- **SQLite Database**: Stores document information using SQLAlchemy ORM
-- **Full-Text Search**: Search through document titles, authors, filenames, and content
+- **Article Extraction**: Extracts structured article data (FBET/FBEN codes, descriptions, links) from chapter 9
+- **SQLite Database**: Stores document and article information using SQLAlchemy ORM
+- **Full-Text Search**: Search through document titles, authors, filenames, content, and articles
 - **Web Interface**: Clean, responsive Bootstrap-based UI for searching and browsing
-- **Document Details**: View detailed information about each indexed PDF
+- **Document Details**: View detailed information about each indexed PDF and its articles
 
 ## Project Structure
 
@@ -16,7 +17,7 @@ A Python-based material indexing and search system that extracts text from PDF f
 mtrl-search/
 ├── app.py                 # Flask application with routes
 ├── models.py              # SQLAlchemy database models
-├── extract_pdfs.py        # PDF extraction and indexing script
+├── extract_articles.py    # PDF indexing and article extraction script
 ├── requirements.txt       # Python dependencies
 ├── templates/             # HTML templates
 │   ├── base.html         # Base template with Bootstrap
@@ -63,12 +64,13 @@ cp /path/to/your/document.pdf pdfs/
 
 Run the extraction script to index all PDFs in a directory:
 ```bash
-python extract_pdfs.py ./pdfs
+python extract_articles.py ./pdfs
 ```
 
 The script will:
 - Extract text from each PDF
 - Extract metadata (title, author, number of pages)
+- Extract structured article data from chapter 9 (FBET/FBEN codes, descriptions, links)
 - Store everything in the SQLite database
 - Skip files that have already been indexed
 
@@ -101,6 +103,8 @@ Open your browser and navigate to `http://localhost:5000`
 - **Home (`/`)**: Search interface and statistics
 - **Search (`/search?q=query`)**: Search results for your query
 - **Browse (`/browse`)**: View all indexed documents
+- **Articles (`/articles`)**: Browse all extracted articles
+- **Article Search (`/articles/search?q=query`)**: Search through articles
 - **Document Detail (`/document/<id>`)**: Detailed view of a specific document
 
 ## Adding New PDFs
@@ -110,7 +114,7 @@ To add more PDFs after initial setup:
 1. Copy new PDF files to the `pdfs/` directory
 2. Run the indexing script again:
    ```bash
-   python extract_pdfs.py ./pdfs
+   python extract_articles.py ./pdfs
    ```
 3. The script will only index new files, skipping already-indexed ones
 4. Refresh your browser to see the new documents
@@ -118,16 +122,23 @@ To add more PDFs after initial setup:
 ## Search Features
 
 The search functionality looks for matches in:
+
+**Document Search**:
 - Document titles
-- Author names
+- Author names  
 - Filenames
 - Full document content
+
+**Article Search**:
+- FBET codes
+- FBEN codes
+- Article descriptions
 
 Search is case-insensitive and matches partial words.
 
 ## Database Schema
 
-The `PDFDocument` model stores:
+### PDFDocument Model
 - `id`: Unique identifier
 - `filename`: Original PDF filename
 - `title`: Document title (from metadata or filename)
@@ -136,6 +147,15 @@ The `PDFDocument` model stores:
 - `content`: Full text content extracted from all pages
 - `file_path`: Path to the original PDF file
 - `indexed_at`: Timestamp when the document was indexed
+
+### Article Model
+- `id`: Unique identifier
+- `document_id`: Foreign key to PDFDocument
+- `fbet`: FBET code
+- `fben`: FBEN code
+- `artikel`: Article name/description
+- `link`: Link to documentation
+- `extracted_at`: Timestamp when the article was extracted
 
 ## Requirements
 

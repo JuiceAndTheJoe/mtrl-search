@@ -1,2 +1,2 @@
 # This directory is for storing PDF files to be indexed
-# Place your PDF files here and run: python extract_pdfs.py ./pdfs
+# Place your PDF files here and run: python extract_articles.py ./pdfs

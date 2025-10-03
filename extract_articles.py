@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Skript för att extrahera artikelinformation från kapitel 9 - Tillverkardokumentation
+Skript för att indexera PDF-dokument och extrahera artikelinformation från kapitel 9 - Tillverkardokumentation
 """
 
 import pdfplumber
 import re
+import os
 from pathlib import Path
 from models import get_session, PDFDocument, Article, init_db
 from sqlalchemy import or_
@@ -23,15 +24,36 @@ def find_chapter_9_pages(pdf_path):
                 text = page.extract_text()
                 
                 if text:
-                    # Leta efter kolumnrubriker eller FBET/FBEN-koder
-                    if any(header in text.upper() for header in ['FBET', 'FBEN', 'ARTIKEL']):
-                        # Kontrollera om det verkligen ser ut som en tabell med alla kolumner
-                        if all(col in text.upper() for col in ['FBET', 'FBEN', 'ARTIKEL', 'LÄNK']):
-                            pages_with_articles.append(page_num)
-                            print(f"✅ Hittade komplett artikeltabell på sida {page_num + 1}")
-                        elif 'FBET' in text.upper() or 'FBEN' in text.upper():
-                            pages_with_articles.append(page_num)
-                            print(f"📋 Hittade partiell artikeldata på sida {page_num + 1}")
+                    text_upper = text.upper()
+                    
+                    # Leta efter specifika indikatorer för tillverkardokumentation
+                    chapter_indicators = [
+                        'TILLVERKARDOKUMENTATION',
+                        'KAPITEL 9',
+                        'CHAPTER 9'
+                    ]
+                    
+                    # Leta efter artikelkoder och strukturerad data
+                    article_indicators = [
+                        'FBET',
+                        'FBEN', 
+                        'F8009-', 'F7773-', 'G8009-', 'G7773-'  # Vanliga FBET-prefixer
+                    ]
+                    
+                    has_chapter = any(indicator in text_upper for indicator in chapter_indicators)
+                    has_articles = any(indicator in text_upper for indicator in article_indicators)
+                    
+                    # Räkna antal potentiella artikelrader (rader med FBET/FBEN-mönster)
+                    fbet_matches = len(re.findall(r'[FG]\d{4}-\d{6}', text))
+                    
+                    if has_chapter or (has_articles and fbet_matches > 2):
+                        pages_with_articles.append(page_num)
+                        print(f"✅ Hittade artikeldata på sida {page_num + 1} ({fbet_matches} FBET-koder)")
+                        
+                        # Visa lite kontext
+                        if fbet_matches > 0:
+                            sample_codes = re.findall(r'[FG]\d{4}-\d{6}', text)[:3]
+                            print(f"   Exempel på koder: {', '.join(sample_codes)}")
                             
             except Exception as e:
                 print(f"Fel vid analys av sida {page_num + 1}: {e}")
@@ -83,21 +105,45 @@ def extract_articles_from_page(page):
                         print(f"Kolumnindex - FBET: {fbet_idx}, FBEN: {fben_idx}, ARTIKEL: {artikel_idx}, LÄNK: {link_idx}")
                         
                         # Extrahera data från raderna efter header
-                        for row in table[header_row + 1:]:
-                            if row and len(row) > max(filter(None, [fbet_idx, fben_idx, artikel_idx, link_idx] or [0])):
-                                fbet = str(row[fbet_idx]) if fbet_idx is not None and fbet_idx < len(row) and row[fbet_idx] else None
-                                fben = str(row[fben_idx]) if fben_idx is not None and fben_idx < len(row) and row[fben_idx] else None
-                                artikel = str(row[artikel_idx]) if artikel_idx is not None and artikel_idx < len(row) and row[artikel_idx] else None
-                                link = str(row[link_idx]) if link_idx is not None and link_idx < len(row) and row[link_idx] else None
+                        row_count = 0
+                        for row_idx, row in enumerate(table[header_row + 1:], start=header_row + 1):
+                            if row:
+                                print(f"  Rad {row_idx}: {row[:5]}...")  # Visa första 5 celler för debug
                                 
-                                # Filtrera bort tomma rader
-                                if any(val and val.strip() and val.strip() != 'None' for val in [fbet, fben, artikel, link]):
+                                # Kontrollera om raden har tillräckligt med kolumner
+                                max_needed_idx = max(filter(None, [fbet_idx, fben_idx, artikel_idx, link_idx] or [0]))
+                                if len(row) <= max_needed_idx:
+                                    print(f"    Hoppar över rad - för få kolumner ({len(row)} <= {max_needed_idx})")
+                                    continue
+                                
+                                # Extrahera värden
+                                fbet = str(row[fbet_idx]).strip() if fbet_idx is not None and fbet_idx < len(row) and row[fbet_idx] else ""
+                                fben = str(row[fben_idx]).strip() if fben_idx is not None and fben_idx < len(row) and row[fben_idx] else ""
+                                artikel = str(row[artikel_idx]).strip() if artikel_idx is not None and artikel_idx < len(row) and row[artikel_idx] else ""
+                                link = str(row[link_idx]).strip() if link_idx is not None and link_idx < len(row) and row[link_idx] else ""
+                                
+                                # Rensa bort "None" och tomma strängar
+                                fbet = fbet if fbet and fbet != 'None' and fbet.strip() != '' else None
+                                fben = fben if fben and fben != 'None' and fben.strip() != '' else None
+                                artikel = artikel if artikel and artikel != 'None' and artikel.strip() != '' else None
+                                link = link if link and link != 'None' and link.strip() != '' else None
+                                
+                                print(f"    Extraherat - FBET: '{fbet}', FBEN: '{fben}', Artikel: '{artikel}', Länk: '{link}'")
+                                
+                                # Kontrollera om raden har användbar data
+                                if any([fbet, fben, artikel, link]):
                                     articles.append({
-                                        'fbet': fbet.strip() if fbet and fbet != 'None' else None,
-                                        'fben': fben.strip() if fben and fben != 'None' else None,
-                                        'artikel': artikel.strip() if artikel and artikel != 'None' else None,
-                                        'link': link.strip() if link and link != 'None' else None
+                                        'fbet': fbet,
+                                        'fben': fben,
+                                        'artikel': artikel,
+                                        'link': link
                                     })
+                                    row_count += 1
+                                    print(f"    ✅ Artikel {row_count} tillagd")
+                                else:
+                                    print(f"    ❌ Tom rad, hoppar över")
+                        
+                        print(f"Totalt {row_count} artiklar extraherade från tabell {table_idx + 1}")
         
         # Om inga tabeller hittades, prova textbaserad extraktion
         if not articles:
@@ -116,34 +162,87 @@ def extract_articles_from_text(text):
     
     try:
         lines = text.split('\n')
+        print(f"Textbaserad extraktion: analyserar {len(lines)} rader")
         
-        for line in lines:
-            # Leta efter rader som kan innehålla FBET/FBEN-koder
-            fbet_match = re.search(r'FBET\s*[-:]?\s*(\w+)', line, re.IGNORECASE)
-            fben_match = re.search(r'FBEN\s*[-:]?\s*(\w+)', line, re.IGNORECASE)
+        for line_num, line in enumerate(lines, 1):
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Leta efter specifika mönster för FBET och FBEN
+            # FBET: F/G/M följt av 4 siffror, bindestreck och 6 siffror
+            fbet_pattern = r'\b([FGM]\d{4}-\d{6})\b'
             
-            if fbet_match or fben_match:
-                # Försök extrahera mer information från samma rad
-                fbet = fbet_match.group(1) if fbet_match else None
-                fben = fben_match.group(1) if fben_match else None
+            # FBEN: Försök att hitta mönster för svenska produktnamn
+            # Titta efter vanliga FBEN-ord som följer efter FBET-koden
+            fben_patterns = [
+                r'\b(STANDARDBULT|MINIBULT|KAMSÄKRING|ISSKRUV|BORRKRONA|GUMMFIXERING|EXPANDERBULT|LIMBULT|VAJERKIL|SNABBLÄNK|KLÄTTERSELE|SÄKERHETSSELE|KARBINHAKE|FALLDÄMPARE|SMÖRJFETT|KROK|FIXERING|REPBROMS|REP)\b',
+                r'\b([A-ZÅÄÖ]{5,20})\b'  # Backup pattern för andra ord
+            ]
+            
+            fbet_match = re.search(fbet_pattern, line, re.IGNORECASE)
+            fben_match = None
+            
+            # Prova alla FBEN-mönster
+            for pattern in fben_patterns:
+                fben_match = re.search(pattern, line, re.IGNORECASE)
+                if fben_match:
+                    break
+            
+            # Prioritera rader med FBET-koder, de är mest tillförlitliga
+            if fbet_match:
+                print(f"  Rad {line_num}: {line}")
+                
+                fbet = fbet_match.group(1).strip()
+                fben = fben_match.group(1).strip() if fben_match else None
                 
                 # Leta efter URL/länk i samma rad
                 link_match = re.search(r'(https?://[^\s]+)', line)
                 link = link_match.group(1) if link_match else None
                 
-                # Resten av raden kan vara artikelbeskrivning
-                artikel = line.strip()
+                # Extrahera och rensa artikelbeskrivning
+                artikel = line
                 
-                articles.append({
-                    'fbet': fbet,
-                    'fben': fben,
-                    'artikel': artikel,
-                    'link': link
-                })
+                # Ta bort FBET-kod från beskrivningen
+                if fbet:
+                    artikel = artikel.replace(fbet, '').strip()
+                
+                # Ta bort FBEN-kod från beskrivningen 
+                if fben:
+                    artikel = artikel.replace(fben, '').strip()
+                
+                # Ta bort länk från beskrivningen
+                if link:
+                    artikel = artikel.replace(link, '').strip()
+                
+                # Ta bort extra mellanslag och tomma delar
+                artikel = re.sub(r'\s+', ' ', artikel).strip()
+                
+                # Hoppa över för korta beskrivningar eller headers
+                if not artikel or len(artikel) < 5 or artikel.upper() in ['FBET FBEN ARTIKEL LÄNK', 'FBET', 'FBEN', 'ARTIKEL', 'LÄNK']:
+                    artikel = None
+                
+                # För M-prefix koder, behandla dem som FBET om de är längre än 10 tecken
+                if not fbet and re.match(r'M\d{4}-\d{6}', line):
+                    m_match = re.search(r'(M\d{4}-\d{6})', line)
+                    if m_match:
+                        fbet = m_match.group(1)
+                        artikel = artikel.replace(fbet, '').strip() if artikel else artikel
+                
+                print(f"    FBET: '{fbet}', FBEN: '{fben}', Artikel: '{artikel}', Länk: '{link}'")
+                
+                if any([fbet, fben, artikel, link]):
+                    articles.append({
+                        'fbet': fbet,
+                        'fben': fben,
+                        'artikel': artikel,
+                        'link': link
+                    })
     
     except Exception as e:
         print(f"Fel vid textbaserad extraktion: {e}")
     
+    print(f"Textbaserad extraktion: hittade {len(articles)} artiklar")
     return articles
 
 def extract_all_articles(pdf_path, document_id):
@@ -205,6 +304,64 @@ def extract_all_articles(pdf_path, document_id):
     
     return all_articles
 
+def index_pdf_document(pdf_path):
+    """Indexerar ett PDF-dokument och sparar grundläggande information i databasen"""
+    session = get_session()
+    
+    try:
+        # Kontrollera om dokumentet redan finns
+        filename = pdf_path.name
+        existing_doc = session.query(PDFDocument).filter_by(filename=filename).first()
+        
+        if existing_doc:
+            print(f"📋 Dokumentet {filename} finns redan indexerat (ID: {existing_doc.id})")
+            return existing_doc
+        
+        print(f"📝 Indexerar nytt dokument: {filename}")
+        
+        # Extrahera metadata från PDF
+        with pdfplumber.open(pdf_path) as pdf:
+            # Hämta metadata
+            metadata = pdf.metadata or {}
+            title = metadata.get('Title', '') or filename
+            author = metadata.get('Author', '') or metadata.get('Creator', '')
+            
+            # Extrahera text från första sidan för innehållsindexering
+            content = ""
+            try:
+                if len(pdf.pages) > 0:
+                    first_page_text = pdf.pages[0].extract_text() or ""
+                    content = first_page_text[:5000]  # Begränsa till första 5000 tecken
+            except Exception as e:
+                print(f"Varning: Kunde inte extrahera text från första sidan: {e}")
+            
+            # Skapa nytt dokument i databasen
+            document = PDFDocument(
+                filename=filename,
+                title=title,
+                author=author,
+                num_pages=len(pdf.pages),
+                content=content,
+                file_path=str(pdf_path.absolute())
+            )
+            
+            session.add(document)
+            session.commit()
+            
+            print(f"✅ Dokument indexerat med ID: {document.id}")
+            print(f"   Titel: {title}")
+            print(f"   Författare: {author}")
+            print(f"   Antal sidor: {len(pdf.pages)}")
+            
+            return document
+            
+    except Exception as e:
+        session.rollback()
+        print(f"❌ Fel vid indexering av dokument: {e}")
+        return None
+    finally:
+        session.close()
+
 def main():
     """Huvudfunktion"""
     # Initiera databas (skapa nya tabeller)
@@ -226,12 +383,11 @@ def main():
         print(f"Bearbetar: {pdf_file.name}")
         print(f"{'='*60}")
         
-        # Hitta dokumentet i databasen
-        document = session.query(PDFDocument).filter_by(filename=pdf_file.name).first()
+        # Indexera dokumentet (skapar nytt eller hämtar befintligt)
+        document = index_pdf_document(pdf_file)
         
         if not document:
-            print(f"❌ Dokumentet {pdf_file.name} hittades inte i databasen")
-            print("Kör först extract_pdfs.py för att indexera PDF:en")
+            print(f"❌ Kunde inte indexera dokumentet {pdf_file.name}")
             continue
         
         print(f"📋 Extraherar artiklar från dokument ID: {document.id}")
