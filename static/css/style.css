@@ -86,19 +86,26 @@ main {
     border: none !important;
     text-decoration: none !important;
     cursor: pointer;
+    color: #6c757d;
 }
 
 .article-toggle:hover {
     text-decoration: none !important;
+    color: #007bff;
 }
 
 .article-toggle i {
     transition: transform 0.2s ease;
-    font-size: 0.8rem;
+    font-size: 1rem;
 }
 
 .article-toggle[aria-expanded="true"] i {
     transform: rotate(180deg);
+}
+
+/* Image and toggle container */
+.article-toggle:focus {
+    box-shadow: none;
 }
 
 /* Article details container styles */
@@ -127,4 +134,65 @@ main {
 
 .table-hover tbody tr.collapse:hover {
     background-color: transparent;
+}
+
+/* Image edit container and overlay styles */
+.image-edit-container {
+    position: relative;
+    display: inline-block;
+}
+
+.image-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.image-edit-container:hover .image-edit-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.image-edit-buttons {
+    text-align: center;
+}
+
+.image-edit-overlay .btn {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Ensure editable images have consistent styling */
+.editable-image {
+    transition: transform 0.2s ease;
+}
+
+.image-edit-container:hover .editable-image {
+    transform: scale(1.02);
+}
+
+/* Modal improvements */
+.modal-body h6 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+#imagePreview {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+#imagePreview img {
+    border: 1px solid #dee2e6;
 }

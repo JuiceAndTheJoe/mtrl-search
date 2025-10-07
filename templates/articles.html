@@ -47,26 +47,37 @@
                         {% for article in articles %}
                         <tr>
                             <td>
-                                {% if article.image_url %}
-                                    <img src="{{ article.image_url }}" 
-                                         alt="{{ article.artikel[:50] if article.artikel else 'Artikel' }}" 
-                                         class="article-image img-thumbnail" 
-                                         onerror="this.style.display='none';">
-                                {% else %}
-                                    <div class="article-image-placeholder">
-                                        <span>📷</span>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        {% if article.image_url %}
+                                            <img src="{{ article.image_url }}" 
+                                                 alt="{{ article.artikel[:50] if article.artikel else 'Artikel' }}" 
+                                                 class="article-image img-thumbnail" 
+                                                 onerror="this.style.display='none';">
+                                        {% else %}
+                                            <div class="article-image-placeholder">
+                                                <span>📷</span>
+                                            </div>
+                                        {% endif %}
                                     </div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if article.fbet %}
-                                    <button class="btn btn-link p-0 text-start article-toggle" 
+                                    <button class="btn btn-link p-0 article-toggle" 
                                             type="button" 
                                             data-bs-toggle="collapse" 
                                             data-bs-target="#details-{{ article.id }}" 
                                             aria-expanded="false">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                {% if article.fbet %}
+                                    <button class="btn btn-link p-0 text-start" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#details-{{ article.id }}" 
+                                            aria-expanded="false"
+                                            style="border: none; text-decoration: none;">
                                         <code class="text-primary">{{ article.fbet }}</code>
-                                        <i class="bi bi-chevron-down ms-1"></i>
                                     </button>
                                 {% else %}
                                     <span class="text-muted">-</span>
@@ -74,13 +85,13 @@
                             </td>
                             <td>
                                 {% if article.fben %}
-                                    <button class="btn btn-link p-0 text-start article-toggle" 
+                                    <button class="btn btn-link p-0 text-start" 
                                             type="button" 
                                             data-bs-toggle="collapse" 
                                             data-bs-target="#details-{{ article.id }}" 
-                                            aria-expanded="false">
+                                            aria-expanded="false"
+                                            style="border: none; text-decoration: none;">
                                         <code class="text-success">{{ article.fben }}</code>
-                                        <i class="bi bi-chevron-down ms-1"></i>
                                     </button>
                                 {% else %}
                                     <span class="text-muted">-</span>
@@ -95,7 +106,7 @@
                             </td>
                             <td>
                                 <a href="/duckduckgo_search/{{ article.id }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    Bruksanvisning, instruktioner
+                                    Sök instruktioner, bruksanvisning
                                 </a>
                             </td>
                             <td>
@@ -116,17 +127,28 @@
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-3">
-                                                {% if article.image_url %}
-                                                    <img src="{{ article.image_url }}" 
-                                                         alt="{{ article.artikel[:50] if article.artikel else 'Artikel' }}" 
-                                                         class="img-fluid rounded shadow-sm" 
-                                                         style="max-width: 200px; max-height: 200px; object-fit: cover;">
-                                                {% else %}
-                                                    <div class="d-flex align-items-center justify-content-center bg-white border rounded shadow-sm" 
-                                                         style="width: 200px; height: 200px;">
-                                                        <span class="text-muted fs-1">📷</span>
+                                                <div class="image-edit-container" data-article-id="{{ article.id }}">
+                                                    {% if article.image_url %}
+                                                        <img src="{{ article.image_url }}" 
+                                                             alt="{{ article.artikel[:50] if article.artikel else 'Artikel' }}" 
+                                                             class="img-fluid rounded shadow-sm editable-image" 
+                                                             style="max-width: 200px; max-height: 200px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="d-flex align-items-center justify-content-center bg-white border rounded shadow-sm editable-image" 
+                                                             style="width: 200px; height: 200px;">
+                                                            <span class="text-muted fs-1">📷</span>
+                                                        </div>
+                                                    {% endif %}
+                                                    
+                                                    <!-- Hover overlay for image editing -->
+                                                    <div class="image-edit-overlay">
+                                                        <div class="image-edit-buttons">
+                                                            <button type="button" class="btn btn-sm btn-primary mb-2" onclick="showImageModal({{ article.id }})">
+                                                                <i class="bi bi-pencil me-1"></i>Redigera bild
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                {% endif %}
+                                                </div>
                                             </div>
                                             <div class="col-md-9">
                                                 <h5 class="mb-3">Artikeldetaljer</h5>
