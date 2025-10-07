@@ -13,35 +13,14 @@ init_db()
 
 @app.route('/')
 def index():
-    """Home page with search form."""
+    """Home page with article search form."""
     session = get_session()
     total_docs = session.query(PDFDocument).count()
     total_articles = session.query(Article).count()
     session.close()
     return render_template('index.html', total_docs=total_docs, total_articles=total_articles)
 
-@app.route('/search')
-def search():
-    """Search for PDF documents."""
-    query = request.args.get('q', '').strip()
-    
-    if not query:
-        return render_template('search_results.html', results=[], query='')
-    
-    session = get_session()
-    
-    # Search in title, author, filename, and content
-    search_filter = or_(
-        PDFDocument.title.ilike(f'%{query}%'),
-        PDFDocument.author.ilike(f'%{query}%'),
-        PDFDocument.filename.ilike(f'%{query}%'),
-        PDFDocument.content.ilike(f'%{query}%')
-    )
-    
-    results = session.query(PDFDocument).filter(search_filter).all()
-    session.close()
-    
-    return render_template('search_results.html', results=results, query=query)
+# Dokumentsökning borttagen - endast artikelsökning används nu
 
 @app.route('/document/<int:doc_id>')
 def document_detail(doc_id):
@@ -60,14 +39,7 @@ def document_detail(doc_id):
     
     return render_template('document_detail.html', doc=doc, articles=articles)
 
-@app.route('/browse')
-def browse():
-    """Browse all documents."""
-    session = get_session()
-    documents = session.query(PDFDocument).order_by(PDFDocument.indexed_at.desc()).all()
-    session.close()
-    
-    return render_template('browse.html', documents=documents)
+# Dokumentbläddring borttagen - endast artikelvy används nu
 
 @app.route('/articles')
 def articles():
