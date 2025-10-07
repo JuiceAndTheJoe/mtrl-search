@@ -41,7 +41,11 @@
                     </thead>
                     <tbody>
                         {% for article in results %}
-                        <tr>
+                        <tr class="article-row clickable-row" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#search-details-{{ article.id }}" 
+                            aria-expanded="false"
+                            style="cursor: pointer;">
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="me-2 main-image-container" data-article-id="{{ article.id }}">
@@ -56,39 +60,21 @@
                                             </div>
                                         {% endif %}
                                     </div>
-                                    <button class="btn btn-link p-0 article-toggle" 
-                                            type="button" 
-                                            data-bs-toggle="collapse" 
-                                            data-bs-target="#search-details-{{ article.id }}" 
-                                            aria-expanded="false">
+                                    <div class="article-toggle">
                                         <i class="bi bi-chevron-down"></i>
-                                    </button>
+                                    </div>
                                 </div>
                             </td>
                             <td>
                                 {% if article.fbet %}
-                                    <button class="btn btn-link p-0 text-start" 
-                                            type="button" 
-                                            data-bs-toggle="collapse" 
-                                            data-bs-target="#search-details-{{ article.id }}" 
-                                            aria-expanded="false"
-                                            style="border: none; text-decoration: none;">
-                                        <code class="text-primary">{{ article.fbet }}</code>
-                                    </button>
+                                    <code class="text-primary">{{ article.fbet }}</code>
                                 {% else %}
                                     <span class="text-muted">-</span>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if article.fben %}
-                                    <button class="btn btn-link p-0 text-start" 
-                                            type="button" 
-                                            data-bs-toggle="collapse" 
-                                            data-bs-target="#search-details-{{ article.id }}" 
-                                            aria-expanded="false"
-                                            style="border: none; text-decoration: none;">
-                                        <code class="text-success">{{ article.fben }}</code>
-                                    </button>
+                                    <code class="text-success">{{ article.fben }}</code>
                                 {% else %}
                                     <span class="text-muted">-</span>
                                 {% endif %}

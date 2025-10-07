@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event delegation for edit image buttons
     document.addEventListener('click', function(e) {
         if (e.target.closest('.edit-image-btn')) {
+            e.stopPropagation(); // Prevent row expansion
             const button = e.target.closest('.edit-image-btn');
             const articleId = button.getAttribute('data-article-id');
             if (articleId) {
@@ -53,12 +54,23 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Event delegation for view image buttons
         if (e.target.closest('.view-image-btn')) {
+            e.stopPropagation(); // Prevent row expansion
             const button = e.target.closest('.view-image-btn');
             const imageUrl = button.getAttribute('data-image-url');
             const articleName = button.getAttribute('data-article-name');
             if (imageUrl) {
                 showImageViewer(imageUrl, articleName);
             }
+        }
+        
+        // Prevent row expansion when clicking on image edit overlay
+        if (e.target.closest('.image-edit-overlay')) {
+            e.stopPropagation();
+        }
+        
+        // Prevent row expansion when clicking on search link
+        if (e.target.closest('.btn-outline-primary')) {
+            e.stopPropagation();
         }
     });
     
