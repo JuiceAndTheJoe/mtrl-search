@@ -2,8 +2,11 @@
 
 {% block title %}Artikelsökning - mtrl-search{% endblock %}
 
-{% block content %}
-<div class="row">
+{% block co                            <td>
+                                <a href="/duckduckgo_search/{{ article.id }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    Bruksanvisning, instruktioner
+                                </a>
+                            </td><div class="row">
     <div class="col-lg-10 mx-auto">
         <h2 class="mb-4">Artikelsökresultat</h2>
         
@@ -37,7 +40,6 @@
                             <th>FBEN</th>
                             <th>Artikel</th>
                             <th>Länk</th>
-                            <th>Dokument</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,7 +116,7 @@
                         </tr>
                         <!-- Kollapsbar detaljrad för sökresultat -->
                         <tr class="collapse" id="search-details-{{ article.id }}">
-                            <td colspan="6" class="article-details-container">
+                            <td colspan="5" class="article-details-container">
                                 <div class="card border-0 bg-light">
                                     <div class="card-body">
                                         <div class="row">

@@ -39,8 +39,6 @@
                             <th>FBEN</th>
                             <th>Artikel</th>
                             <th>Länk</th>
-                            <th>Dokument</th>
-                            <th>Extraherad</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -109,20 +107,10 @@
                                     Sök instruktioner, bruksanvisning
                                 </a>
                             </td>
-                            <td>
-                                <a href="/document/{{ article.document.id }}" class="text-decoration-none">
-                                    {{ article.document.title or article.document.filename }}
-                                </a>
-                            </td>
-                            <td>
-                                <small class="text-muted">
-                                    {{ article.extracted_at.strftime('%Y-%m-%d %H:%M') }}
-                                </small>
-                            </td>
                         </tr>
                         <!-- Kollapsbar detaljrad -->
                         <tr class="collapse" id="details-{{ article.id }}">
-                            <td colspan="7" class="article-details-container">
+                            <td colspan="5" class="article-details-container">
                                 <div class="card border-0 bg-light">
                                     <div class="card-body">
                                         <div class="row">
