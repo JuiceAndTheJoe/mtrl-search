@@ -1,8 +1,9 @@
 """
 Flask application for searching and viewing indexed PDF documents.
 """
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from sqlalchemy import or_
+import urllib.parse
 from models import PDFDocument, Article, init_db, get_session
 
 app = Flask(__name__)
@@ -74,6 +75,36 @@ def search_articles():
     session.close()
     
     return render_template('article_search_results.html', results=results, query=query)
+
+@app.route('/duckduckgo_search/<int:article_id>')
+def duckduckgo_search(article_id):
+    """Redirect to DuckDuckGo search for a specific article."""
+    session = get_session()
+    article = session.get(Article, article_id)
+    session.close()
+    
+    if not article:
+        return "Article not found", 404
+    
+    # Build search query from article information
+    search_terms = []
+    
+    if article.artikel and article.artikel.strip() and article.artikel != 'None':
+        search_terms.append(article.artikel.strip())
+    if article.fben and article.fben.strip():
+        search_terms.append(article.fben.strip())
+    
+    # If we have no good search terms, use FBET as fallback
+    if not search_terms and article.fbet:
+        search_terms.append(article.fbet.strip())
+    
+    # Join search terms and URL encode
+    search_query = ' '.join(search_terms)
+    encoded_query = urllib.parse.quote_plus(search_query)
+    
+    # Redirect to DuckDuckGo search
+    duckduckgo_url = f"https://duckduckgo.com/?q={encoded_query}"
+    return redirect(duckduckgo_url)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

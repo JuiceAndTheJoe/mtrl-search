@@ -67,13 +67,9 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if article.link %}
-                                    <a href="{{ article.link }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        🔗 Öppna
-                                    </a>
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
+                                <a href="/duckduckgo_search/{{ article.id }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    � Sök på DuckDuckGo
+                                </a>
                             </td>
                             <td>
                                 <a href="/document/{{ article.document.id }}" class="text-decoration-none">
