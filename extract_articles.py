@@ -193,8 +193,12 @@ def extract_articles_from_text(text):
                     word_clean = re.sub(r'[^\w\såäöüÅÄÖÜ\-\./]', '', word)
                     
                     if in_fben and word_clean:
+                        # Specialhantering för "BD" - ska alltid till artikel som "Black Diamond"
+                        if word_clean == 'BD':
+                            in_fben = False
+                            artikel_words.append('Black Diamond')
                         # Kolla om ordet tillhör FBEN (stora bokstäver, mått, förkortningar)
-                        if (word_clean.isupper() or 
+                        elif (word_clean.isupper() or 
                             re.match(r'^[A-ZÅÄÖÜ0-9\-\./,]+$', word_clean) or
                             word_clean in ['PPE', 'STD', 'SV', 'AL', 'ST', 'DL', 'TL', 'TLS', 'SLS', 'CM', 'MM', 'M', 'L', 'KG', 'DB', 'NR']):
                             fben_words.append(word)
@@ -217,7 +221,10 @@ def extract_articles_from_text(text):
                     artikel = artikel.strip()
                     
                     # Om artikel-texten bara består av siffror och mått, sätt den till None
-                    if not artikel or re.match(r'^[\d\s\-\./,]+$', artikel):
+                    # Men behåll viktiga produktnamn som "Black Diamond"
+                    if (not artikel or 
+                        (re.match(r'^[\d\s\-\./,]+$', artikel) and 
+                         artikel not in ['Black Diamond'])):
                         artikel = None
                 
                 # Validera FBEN - det ska vara rimligt som produkttyp
