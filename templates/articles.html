@@ -34,6 +34,7 @@
                 <table class="table table-striped table-hover">
                     <thead class="table-dark">
                         <tr>
+                            <th>Bild</th>
                             <th>FBET</th>
                             <th>FBEN</th>
                             <th>Artikel</th>
@@ -45,6 +46,18 @@
                     <tbody>
                         {% for article in articles %}
                         <tr>
+                            <td>
+                                {% if article.image_url %}
+                                    <img src="{{ article.image_url }}" 
+                                         alt="{{ article.artikel[:50] if article.artikel else 'Artikel' }}" 
+                                         class="article-image img-thumbnail" 
+                                         onerror="this.style.display='none';">
+                                {% else %}
+                                    <div class="article-image-placeholder">
+                                        <span>📷</span>
+                                    </div>
+                                {% endif %}
+                            </td>
                             <td>
                                 {% if article.fbet %}
                                     <code>{{ article.fbet }}</code>

@@ -37,6 +37,7 @@ class Article(Base):
     fben = Column(String(50))  # FBEN-kod  
     artikel = Column(String(500))  # Artikelnamn/beskrivning
     link = Column(String(1000))  # Länk till dokumentation
+    image_url = Column(String(1000))  # URL till artikelbild
     extracted_at = Column(DateTime, default=datetime.utcnow)
     
     # Relation tillbaka till dokument

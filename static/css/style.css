@@ -41,3 +41,42 @@ main {
     font-weight: bold;
     font-size: 1.3rem;
 }
+
+/* Article image styles */
+.article-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.article-image:hover {
+    transform: scale(1.1);
+}
+
+.article-image-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    border: 2px dashed #dee2e6;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: #6c757d;
+    transition: background-color 0.2s ease;
+}
+
+.article-image-placeholder:hover {
+    background-color: #e9ecef;
+}
+
+/* Responsive image sizes for smaller screens */
+@media (max-width: 768px) {
+    .article-image, .article-image-placeholder {
+        width: 60px;
+        height: 60px;
+    }
+}
