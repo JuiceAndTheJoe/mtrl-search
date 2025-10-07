@@ -50,6 +50,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 showImageModal(parseInt(articleId));
             }
         }
+        
+        // Event delegation for view image buttons
+        if (e.target.closest('.view-image-btn')) {
+            const button = e.target.closest('.view-image-btn');
+            const imageUrl = button.getAttribute('data-image-url');
+            const articleName = button.getAttribute('data-article-name');
+            if (imageUrl) {
+                showImageViewer(imageUrl, articleName);
+            }
+        }
     });
     
     // Preview image when URL is entered
@@ -200,6 +210,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Download image button
+    const downloadBtn = document.getElementById('downloadImageBtn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', function() {
+            const img = document.getElementById('fullscreenImg');
+            if (img && img.src) {
+                downloadImage(img.src, img.alt || 'artikel-bild');
+            }
+        });
+    }
 });
 
 function updateArticleImages(articleId, newImageUrl) {
@@ -283,6 +304,69 @@ function removeArticleImages(articleId) {
             }
         }
     });
+}
+
+function showImageViewer(imageUrl, articleName) {
+    const modal = document.getElementById('imageViewerModal');
+    const img = document.getElementById('fullscreenImg');
+    const title = document.getElementById('imageViewerModalLabel');
+    
+    if (modal && img) {
+        img.src = imageUrl;
+        img.alt = articleName || 'Artikel bild';
+        
+        if (title) {
+            title.textContent = `Bildvisning - ${articleName || 'Artikel'}`;
+        }
+        
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        
+        // Add keyboard navigation
+        const handleKeyPress = (e) => {
+            if (e.key === 'Escape') {
+                bsModal.hide();
+            }
+        };
+        
+        document.addEventListener('keydown', handleKeyPress);
+        
+        // Remove event listener when modal is hidden
+        modal.addEventListener('hidden.bs.modal', () => {
+            document.removeEventListener('keydown', handleKeyPress);
+        }, { once: true });
+    }
+}
+
+function downloadImage(imageUrl, filename) {
+    // Create a temporary anchor element to trigger download
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = filename.replace(/[^a-z0-9.-]/gi, '_') + '.jpg';
+    
+    // For external URLs, we need to fetch and convert to blob
+    if (imageUrl.startsWith('http')) {
+        fetch(imageUrl)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                link.href = url;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error downloading image:', error);
+                // Fallback: open in new tab
+                window.open(imageUrl, '_blank');
+            });
+    } else {
+        // For local images, direct download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 }
 
 function showAlert(message, type = 'info') {

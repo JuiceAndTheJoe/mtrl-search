@@ -134,6 +134,11 @@
                                                             <button type="button" class="btn btn-sm btn-primary mb-2 edit-image-btn" data-article-id="{{ article.id }}">
                                                                 <i class="bi bi-pencil me-1"></i>Redigera bild
                                                             </button>
+                                                            {% if article.image_url %}
+                                                            <button type="button" class="btn btn-sm btn-light view-image-btn" data-image-url="{{ article.image_url }}" data-article-name="{{ article.artikel[:50] if article.artikel else 'Artikel' }}">
+                                                                <i class="bi bi-eye me-1"></i>Visa bild
+                                                            </button>
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>
