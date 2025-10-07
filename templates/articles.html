@@ -60,14 +60,28 @@
                             </td>
                             <td>
                                 {% if article.fbet %}
-                                    <code>{{ article.fbet }}</code>
+                                    <button class="btn btn-link p-0 text-start article-toggle" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#details-{{ article.id }}" 
+                                            aria-expanded="false">
+                                        <code class="text-primary">{{ article.fbet }}</code>
+                                        <i class="bi bi-chevron-down ms-1"></i>
+                                    </button>
                                 {% else %}
                                     <span class="text-muted">-</span>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if article.fben %}
-                                    <code>{{ article.fben }}</code>
+                                    <button class="btn btn-link p-0 text-start article-toggle" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#details-{{ article.id }}" 
+                                            aria-expanded="false">
+                                        <code class="text-success">{{ article.fben }}</code>
+                                        <i class="bi bi-chevron-down ms-1"></i>
+                                    </button>
                                 {% else %}
                                     <span class="text-muted">-</span>
                                 {% endif %}
@@ -81,7 +95,7 @@
                             </td>
                             <td>
                                 <a href="/duckduckgo_search/{{ article.id }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    Mer om artikeln
+                                    Bruksanvisning, instruktioner
                                 </a>
                             </td>
                             <td>
@@ -93,6 +107,72 @@
                                 <small class="text-muted">
                                     {{ article.extracted_at.strftime('%Y-%m-%d %H:%M') }}
                                 </small>
+                            </td>
+                        </tr>
+                        <!-- Kollapsbar detaljrad -->
+                        <tr class="collapse" id="details-{{ article.id }}">
+                            <td colspan="7" class="article-details-container">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                {% if article.image_url %}
+                                                    <img src="{{ article.image_url }}" 
+                                                         alt="{{ article.artikel[:50] if article.artikel else 'Artikel' }}" 
+                                                         class="img-fluid rounded shadow-sm" 
+                                                         style="max-width: 200px; max-height: 200px; object-fit: cover;">
+                                                {% else %}
+                                                    <div class="d-flex align-items-center justify-content-center bg-white border rounded shadow-sm" 
+                                                         style="width: 200px; height: 200px;">
+                                                        <span class="text-muted fs-1">📷</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-9">
+                                                <h5 class="mb-3">Artikeldetaljer</h5>
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <p><strong>FBET:</strong> 
+                                                        {% if article.fbet %}
+                                                            <code class="text-primary">{{ article.fbet }}</code>
+                                                        {% else %}
+                                                            <span class="text-muted">Ej angiven</span>
+                                                        {% endif %}
+                                                        </p>
+                                                        <p><strong>FBEN:</strong> 
+                                                        {% if article.fben %}
+                                                            <code class="text-success">{{ article.fben }}</code>
+                                                        {% else %}
+                                                            <span class="text-muted">Ej angiven</span>
+                                                        {% endif %}
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p><strong>Extraherad:</strong> 
+                                                            <small class="text-muted">{{ article.extracted_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                                        </p>
+                                                        <p><strong>Dokument:</strong> 
+                                                            <a href="/document/{{ article.document.id }}" class="text-decoration-none">
+                                                                {{ article.document.title or article.document.filename }}
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                {% if article.artikel %}
+                                                <div class="mt-3">
+                                                    <p><strong>Fullständig beskrivning:</strong></p>
+                                                    <p class="text-muted">{{ article.artikel }}</p>
+                                                </div>
+                                                {% endif %}
+                                                <div class="mt-3">
+                                                    <a href="/duckduckgo_search/{{ article.id }}" target="_blank" class="btn btn-primary">
+                                                        <i class="bi bi-search me-1"></i>Sök efter instruktioner
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}

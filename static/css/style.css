@@ -80,3 +80,51 @@ main {
         height: 60px;
     }
 }
+
+/* Article toggle button styles */
+.article-toggle {
+    border: none !important;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+.article-toggle:hover {
+    text-decoration: none !important;
+}
+
+.article-toggle i {
+    transition: transform 0.2s ease;
+    font-size: 0.8rem;
+}
+
+.article-toggle[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+/* Article details container styles */
+.article-details-container {
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+}
+
+.article-details-container .card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Smooth collapse animation */
+.collapse {
+    transition: height 0.35s ease;
+}
+
+/* Table row hover effect adjustment for expandable rows */
+.table-hover tbody tr:hover {
+    background-color: rgba(0,0,0,.025);
+}
+
+.table-hover tbody tr.collapse {
+    background-color: transparent;
+}
+
+.table-hover tbody tr.collapse:hover {
+    background-color: transparent;
+}
