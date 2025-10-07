@@ -66,6 +66,16 @@
                     <div id="imagePreview" class="text-center mb-3" style="display: none;">
                         <img id="previewImg" class="img-fluid rounded" style="max-width: 300px; max-height: 200px;">
                     </div>
+                    
+                    <div id="currentImageSection" class="mb-3" style="display: none;">
+                        <h6>Nuvarande bild</h6>
+                        <div class="d-flex align-items-center">
+                            <img id="currentImg" class="img-thumbnail me-3" style="max-width: 100px; max-height: 100px; object-fit: cover;">
+                            <button type="button" class="btn btn-sm btn-outline-danger" id="deleteImageBtn">
+                                <i class="bi bi-trash me-1"></i>Ta bort bild
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Avbryt</button>

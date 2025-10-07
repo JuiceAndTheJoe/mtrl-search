@@ -46,7 +46,7 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <div class="me-2">
+                                    <div class="me-2 main-image-container" data-article-id="{{ article.id }}">
                                         {% if article.image_url %}
                                             <img src="{{ article.image_url }}" 
                                                  alt="{{ article.artikel[:50] if article.artikel else 'Artikel' }}" 
@@ -131,7 +131,7 @@
                                                     <!-- Hover overlay for image editing -->
                                                     <div class="image-edit-overlay">
                                                         <div class="image-edit-buttons">
-                                                            <button type="button" class="btn btn-sm btn-primary mb-2" onclick="showImageModal({{ article.id }})">
+                                                            <button type="button" class="btn btn-sm btn-primary mb-2 edit-image-btn" data-article-id="{{ article.id }}">
                                                                 <i class="bi bi-pencil me-1"></i>Redigera bild
                                                             </button>
                                                         </div>

@@ -2,11 +2,8 @@
 
 {% block title %}Artikelsökning - mtrl-search{% endblock %}
 
-{% block co                            <td>
-                                <a href="/duckduckgo_search/{{ article.id }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    Bruksanvisning, instruktioner
-                                </a>
-                            </td><div class="row">
+{% block content %}
+<div class="row">
     <div class="col-lg-10 mx-auto">
         <h2 class="mb-4">Artikelsökresultat</h2>
         
@@ -47,7 +44,7 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <div class="me-2">
+                                    <div class="me-2 main-image-container" data-article-id="{{ article.id }}">
                                         {% if article.image_url %}
                                             <img src="{{ article.image_url }}" 
                                                  alt="{{ article.artikel[:50] if article.artikel else 'Artikel' }}" 
@@ -108,11 +105,6 @@
                                     Sök instruktioner, bruksanvisning
                                 </a>
                             </td>
-                            <td>
-                                <a href="/document/{{ article.document.id }}" class="text-decoration-none">
-                                    <small>{{ article.document.title or article.document.filename }}</small>
-                                </a>
-                            </td>
                         </tr>
                         <!-- Kollapsbar detaljrad för sökresultat -->
                         <tr class="collapse" id="search-details-{{ article.id }}">
@@ -137,7 +129,7 @@
                                                     <!-- Hover overlay for image editing -->
                                                     <div class="image-edit-overlay">
                                                         <div class="image-edit-buttons">
-                                                            <button type="button" class="btn btn-sm btn-primary mb-2" onclick="showImageModal({{ article.id }})">
+                                                            <button type="button" class="btn btn-sm btn-primary mb-2 edit-image-btn" data-article-id="{{ article.id }}">
                                                                 <i class="bi bi-pencil me-1"></i>Redigera bild
                                                             </button>
                                                         </div>

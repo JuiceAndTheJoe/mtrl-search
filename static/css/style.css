@@ -108,6 +108,34 @@ main {
     box-shadow: none;
 }
 
+/* Image edit overlay styles */
+.image-edit-container {
+    position: relative;
+}
+
+.image-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 8px;
+}
+
+.image-edit-container:hover .image-edit-overlay {
+    opacity: 1;
+}
+
+.image-edit-buttons {
+    text-align: center;
+}
+
 /* Article details container styles */
 .article-details-container {
     background-color: #f8f9fa;

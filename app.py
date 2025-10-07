@@ -158,6 +158,41 @@ def update_article_image(article_id):
     finally:
         session.close()
 
+@app.route('/api/article/<int:article_id>/image', methods=['DELETE'])
+def delete_article_image(article_id):
+    """Delete article image."""
+    session = get_session()
+    
+    try:
+        article = session.get(Article, article_id)
+        if not article:
+            return jsonify({'error': 'Article not found'}), 404
+        
+        old_image_url = article.image_url
+        
+        # Remove image URL from database
+        article.image_url = None
+        session.commit()
+        
+        # Try to delete the physical file if it's an uploaded file
+        if old_image_url and old_image_url.startswith('/static/uploads/'):
+            try:
+                file_path = old_image_url[1:]  # Remove leading '/'
+                full_path = os.path.join(os.getcwd(), file_path)
+                if os.path.exists(full_path):
+                    os.remove(full_path)
+            except Exception as e:
+                # Log the error but don't fail the request
+                print(f"Could not delete file {old_image_url}: {e}")
+        
+        return jsonify({'success': True, 'message': 'Image deleted successfully'})
+        
+    except Exception as e:
+        session.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        session.close()
+
 def allowed_file(filename):
     """Check if file extension is allowed."""
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
